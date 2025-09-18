@@ -1,43 +1,96 @@
 package com.todolist.task.service;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.todolist.task.model.Task;
-import com.todolist.task.repository.TaskRepo;
 
 @Service
 public class TaskService {
 
-  @Autowired
-  private TaskRepo taskrepo;
+  String url = "jdbc:postgresql://localhost:5432/mydb";
+  String user = "postgres";
+  String password = "12345";
 
-  public List<Task>getAllTasks(){
-    return taskrepo.findAll();
+  private Connection getConnection() throws SQLException{
+    return DriverManager.getConnection(url,user,password);
   }
 
-  public Optional<Task>getTaskById(int id){
-    return taskrepo.findById(id);
+
+  public List<Task>getAllTasks(){
+
+    List<Task> tasks = new ArrayList<>();
+    String sql = "SELECT id, title, completed FROM task";
+    try(Connection con = getConnection();
+        Statement st = con.createStatement();
+        ResultSet r = st.executeQuery(sql)){
+      while(r.next()){
+        Task t= new Task();
+        t.setId(r.getInt("id"));
+        t.setTitle(r.getString("title"));
+        t.setCompleted(r.getBoolean("completed"));
+        tasks.add(t);
+      }
+        }catch(SQLException e){
+          e.printStackTrace();
+        }
+    return tasks;
   }
 
   public Task CreateTask(Task task){
-    return taskrepo.save(task);
+    String sql = "INSERT INTO task (title,completed) VALUES (?,?) RETURNING id";
+    try(Connection con = getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);){
+        
+        ps.setString(1,task.getTitle());
+        ps.setBoolean(2,task.getCompleted()!=null? task.getCompleted():false);
+        ResultSet r = ps.executeQuery();
+        if(r.next()){
+          task.setId(r.getInt("id"));
+        }
+        }catch (SQLException e){
+          e.printStackTrace();
+        }
+    return task;
   }
 
   public void DeleteTask(int id){
-     taskrepo.deleteById(id);
+    String sql = "DELETE FROM task WHERE id=?";
+    try(Connection con = getConnection();
+        PreparedStatement ps = con.prepareStatement(sql)){
+        
+      ps.setInt(1,id);
+      ps.executeUpdate();
+        }catch (SQLException e){
+          e.printStackTrace();
+        }
   }
 
   public Task UpdateTask(int id,Task task)  {
-    return taskrepo.findById(id)
-      .map(t->{
-        t.setTitle(task.getTitle());
-        t.setCompleted(task.getCompleted());
-        return taskrepo.save(t);
-      }).orElseThrow(()->new RuntimeException("Task not found"));
+      
+    String sql = "UPDATE task SET title = ?, completed=? WHERE id=?";
+
+    try(Connection con = getConnection();
+        PreparedStatement ps = con.prepareStatement(sql)){
+          ps.setString(1,task.getTitle());
+          ps.setBoolean(2, task.getCompleted()!=null ? task.getCompleted():false);
+          ps.setInt(3,id);
+
+          int row = ps.executeUpdate();
+          if(row==0) throw new RuntimeException("Task not found");
+          task.setId(id);
+        }catch(SQLException e){
+          e.printStackTrace();
+        }
+  
+    return task;
   }
 }
 
