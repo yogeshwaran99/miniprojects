@@ -2,11 +2,16 @@ package com.todolist.task.model;
 
 public class Task {
 
-  int id;
-  String title;
-  Boolean completed;
+  private int id;
+  private String title;
+  private Boolean completed=false;
 
- 
+  public Task(){}
+  public Task(int id, String title, Boolean completed){
+    this.id = id;
+    this.title = title;
+    this.completed = completed != null ? completed : false;
+  }
   public void setId(int id) {
     this.id =id;
   }
