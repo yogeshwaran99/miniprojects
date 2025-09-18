@@ -1,11 +1,7 @@
 package com.todolist.task.model;
-import jakarta.persistence.*;
 
-@Entity
 public class Task {
 
-  @Id
-  @GeneratedValue(strategy =GenerationType.IDENTITY)
   int id;
   String title;
   Boolean completed;
