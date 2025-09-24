@@ -1,6 +1,5 @@
 package com.todolist.task.service;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +7,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.todolist.task.model.Task;
@@ -15,12 +17,11 @@ import com.todolist.task.model.Task;
 @Service
 public class TaskService {
 
-  String url = "jdbc:postgresql://localhost:5432/mydb";
-  String user = "postgres";
-  String password = "12345";
+  @Autowired
+  private DataSource dataSource;
 
   private Connection getConnection() throws SQLException{
-    return DriverManager.getConnection(url,user,password);
+    return dataSource.getConnection();
   }
 
 
