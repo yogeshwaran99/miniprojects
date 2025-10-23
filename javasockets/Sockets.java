@@ -22,15 +22,15 @@ public class Sockets {
     }
   }
   private static void socketserver(Socket client, int id){
-  
+
     try( BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
         PrintWriter pw  = new PrintWriter(client.getOutputStream(),true)){
-String l;
-while((l=br.readLine())!=null){
-  System.out.println("client "+id+" : "+l);
-  pw.println("echo: "+l);
-}
-System.out.println("client "+id+" left");
+      String l;
+      while((l=br.readLine())!=null){
+        System.out.println("client "+id+" : "+l);
+        pw.println("echo: "+l);
+      }
+      System.out.println("client "+id+" left");
     }catch (Exception e){
       e.printStackTrace();
     }
