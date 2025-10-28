@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Full Blog Post</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="brand">Blogger</div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="write.html">Write Blog</a>
+            <button id="darkToggle">🌙</button>
+        </nav>
+    </header>
+    <div style="margin-top: 100px;">
+        <article id="fullPost"></article>
+    </div>
+
+</body>
+
+
+<script>
+    const postData = JSON.parse(localStorage.getItem("selectedPost"));
+    const postContainer = document.getElementById("fullPost");
+
+    if (postData) {
+        postContainer.innerHTML = `
+            <h1>${postData.title}</h1>
+            <time class="recent-date">${new Date(postData.date).toDateString()}</time>
+
+            ${postData.tags
+                ? `<div class="recent-tags">${(Array.isArray(postData.tags) ? postData.tags : postData.tags.split(","))
+                    .map(tag => `<span class="recent-tag">${tag.trim()}</span>`)
+                    .join("")}</div>`
+                : ""}
+
+            <p>${postData.content}</p>
+
+            <button onclick="editPost(${postData.id})">Edit</button>
+            <button onclick="deletePost(${postData.id})">Delete</button>
+        `;
+    }
+
+
+    async function editPost(id) {
+        try {
+            const res = await fetch(`http://localhost:8081/Server/BlogServlet?id=${id}`);
+            if (!res.ok) throw new Error("Failed to load post");
+            const post = await res.json();
+            localStorage.setItem("editPost", JSON.stringify({ post }));
+            window.location.href = "write.html";
+        } catch (e) {
+            console.error("Error editing post:", e);
+            alert("Failed to fetch post for editing.");
+        }
+    }
+
+
+    async function deletePost(id) {
+        try {
+            const res = await fetch(`http://localhost:8081/Server/BlogServlet?id=${id}`, {
+                method: "DELETE"
+            });
+            const text = await res.text();
+            alert("Post deleted: " + text);
+            window.location.href = "index.html";
+        } catch (e) {
+            console.error("Delete failed:", e);
+            alert("Unable to delete post.");
+        }
+    }
+
+
+    const darkToggle = document.getElementById("darkToggle");
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark");
+    }
+    darkToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+    });
+</script>
+
+
+</body>
+
+</html>
