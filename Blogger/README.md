@@ -5,8 +5,8 @@ This project demonstrates a simple CRUD (Create, Read, Update, Delete) web appli
 
 ## Features
 
- -Create, edit, update and delete blog posts
- -View all blog entries dynamically
- -Dark mode toggle (stored in localStorage)
- -Data persistence with PostgreSQL
- -RESTful communication between frontend and Java Servlet backend
+ - Create, edit, update and delete blog posts
+ - View all blog entries dynamically
+ - Dark mode toggle (stored in localStorage)
+ - Data persistence with PostgreSQL
+ - RESTful communication between frontend and Java Servlet backend
